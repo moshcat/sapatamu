@@ -20,6 +20,16 @@ Pengguna utama adalah siswa dan guru SMK pariwisata di Bali. Pengguna tambahan a
 - Folio skor latihan berdasarkan empat kriteria.
 - Halaman guru untuk meninjau transkrip dan mengoreksi skor.
 
+## Screenshots
+
+| Masuk | Daftar latihan | Percakapan suara |
+|---|---|---|
+| ![Form masuk](docs/screenshots/01-masuk.png) | ![Daftar latihan](docs/screenshots/02-daftar-latihan.png) | ![Percakapan suara](docs/screenshots/03-percakapan-suara.png) |
+
+| Folio | Tinjauan guru |
+|---|---|
+| ![Folio latihan](docs/screenshots/04-folio.png) | ![Tinjauan guru](docs/screenshots/05-guru.png) |
+
 ## Tech Stack
 
 - Frontend dan backend: SvelteKit, Svelte 5, TypeScript.
@@ -91,4 +101,6 @@ SvelteKit, Svelte, shadcn-svelte, bits-ui, Tailwind CSS, Lucide, Inter, Groq, Ge
 
 ## Team Members
 
-[NAMA PESERTA], pengembang tunggal.
+Tim SapaTamu, Primakara University.
+
+- Anak Agung Gede Bagus Abi Wiguna, pengembang tunggal.

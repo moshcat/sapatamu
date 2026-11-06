@@ -3,6 +3,7 @@
 | Komponen | Isi Peserta |
 |---|---|
 | Nama Produk | Sapa Tamu |
+| Nama Tim | SapaTamu (Anak Agung Gede Bagus Abi Wiguna, Primakara University) |
 | Framework / Frontend | SvelteKit, Svelte 5, TypeScript, shadcn-svelte, Tailwind CSS |
 | Backend / Runtime | SvelteKit server routes pada Cloudflare Workers |
 | Database / Storage | Cloudflare D1 |
@@ -16,4 +17,4 @@
 | Pre-existing Components | Tidak ada, selain library dan template di atas |
 | Third-party Assets / Credits | Font Inter dan ikon Lucide. Karakter Kamboja dibuat untuk proyek ini |
 
-Pernyataan: Kami menyatakan bahwa informasi di atas benar dan lengkap. Kami bertanggung jawab atas penggunaan teknologi, source code, data, library, API, model AI, dan aset yang digunakan pada produk.
+Pernyataan: Saya menyatakan bahwa informasi di atas benar dan lengkap. Saya bertanggung jawab atas penggunaan teknologi, source code, data, library, API, model AI, dan aset yang digunakan pada produk.
