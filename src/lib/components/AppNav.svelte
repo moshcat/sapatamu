@@ -35,7 +35,7 @@
 
 <nav
 	aria-label="Navigasi utama"
-	class="bg-background desk:inset-y-0 desk:right-auto desk:w-52 desk:flex-col desk:gap-1 desk:border-t-0 desk:border-r desk:px-3 desk:py-6 fixed inset-x-0 bottom-0 z-10 flex border-t px-2 pt-1 pb-[calc(0.25rem+env(safe-area-inset-bottom))]"
+	class="bg-background desk:inset-y-0 desk:right-auto desk:w-52 desk:flex-col desk:gap-1 desk:border-t-0 desk:border-r desk:px-3 desk:py-6 fixed inset-x-0 bottom-0 z-10 flex border-t print:hidden px-2 pt-1 pb-[calc(0.25rem+env(safe-area-inset-bottom))]"
 >
 	<a href={items[0].href} class="desk:flex hidden items-center gap-2.5 rounded-md px-2 pb-5">
 		<img src={favicon} alt="" class="size-10 shrink-0" />

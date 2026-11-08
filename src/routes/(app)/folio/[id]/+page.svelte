@@ -11,6 +11,7 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import { Spinner } from '$lib/components/ui/spinner';
 	import { markScenarioDone, rememberSession } from '$lib/profile';
+	import { formatDate } from '$lib/format';
 	import { findScenario } from '$lib/scenarios';
 	import type { Report, SessionDetail } from '$lib/types';
 
@@ -89,6 +90,9 @@
 		<p class="text-muted-foreground">
 			{scenario?.title ?? session.scenarioId}{scenario ? `, ${scenario.unit.toLowerCase()} ${scenario.room}` : ''}
 		</p>
+		<p class="text-muted-foreground hidden print:block">
+			{formatDate(session.createdAt)}{session.classCode ? `, kelas ${session.classCode}` : ''}
+		</p>
 	</header>
 
 	<div class="desk:grid desk:grid-cols-[minmax(0,1fr)_minmax(17.5rem,22.5rem)] desk:items-start flex flex-col gap-6">
@@ -144,9 +148,10 @@
 					<Alert.Description class="whitespace-pre-line">{session.review.note}</Alert.Description>
 				</Alert.Root>
 			{/if}
-			<div class="flex flex-col gap-2.5">
+			<div class="flex flex-col gap-2.5 print:hidden">
 				<Button class="h-11" href="/latihan">Kembali ke daftar latihan</Button>
 				<Button variant="outline" class="h-11" href="/latihan?skenario={session.scenarioId}">Ulangi latihan ini</Button>
+				<Button variant="outline" class="h-11" onclick={() => window.print()}>Cetak atau simpan PDF</Button>
 			</div>
 		</div>
 	</div>
