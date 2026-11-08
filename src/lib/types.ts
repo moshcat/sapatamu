@@ -63,5 +63,15 @@ export interface ClassCode {
 	finished: number;
 }
 
+export interface ClassRecap {
+	sessions: number;
+	students: number;
+	reviewed: number;
+	criteria: Array<{ criterion: Criterion; average: number | null }>;
+	weakest: Criterion | null;
+	needsHelp: Array<{ nickname: string; sessions: number; average: number }>;
+	targetRate: number | null;
+}
+
 export const MAX_ANSWERS = 6;
 export const CLASS_DAILY_SESSIONS = 30;

@@ -2,6 +2,7 @@ import { env as bindings } from 'cloudflare:workers';
 import * as env from '$app/env/private';
 import { CLASS_DAILY_SESSIONS, type ClassCode } from '$lib/types';
 import { generateClassCode, parseAccessCodes } from './access';
+import { summarizeClass, type RecapRow } from './recap';
 
 export const MAX_CLASSES = 30;
 
@@ -19,6 +20,15 @@ export async function listClasses() {
 		GROUP BY c.code ORDER BY c.created_at DESC
 	`).all<ClassCode>();
 	return results;
+}
+
+export async function classRecap(code: string) {
+	const { results } = await bindings.DB.prepare(`
+		SELECT s.nickname, s.scenario_id, s.checks_met, r.score_json, r.teacher_score_json FROM sessions s
+		JOIN reports r ON r.session_id = s.id
+		WHERE s.class_code = ? AND s.status = 'finished'
+	`).bind(code).all<RecapRow>();
+	return summarizeClass(results);
 }
 
 export async function countClasses() {

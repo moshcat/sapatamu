@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { ApiError, errorMessage, request } from '$lib/api';
 	import ClassCodes from '$lib/components/ClassCodes.svelte';
+	import ClassRecap from '$lib/components/ClassRecap.svelte';
 	import ListRow from '$lib/components/ListRow.svelte';
 	import * as Alert from '$lib/components/ui/alert';
 	import { Badge } from '$lib/components/ui/badge';
@@ -23,6 +24,8 @@
 
 	let sessions = $state.raw<SessionSummary[]>([]);
 	let classFilter = $state('');
+	// Rekap hanya untuk kelas yang dipilih dari daftar, bukan saringan bebas.
+	let recapCode = $state('');
 	let listing = $state(false);
 	let failure = $state('');
 
@@ -72,17 +75,20 @@
 	}
 
 	function filterChanged() {
+		recapCode = '';
 		clearTimeout(filterTimer);
 		filterTimer = setTimeout(loadSessions, 250);
 	}
 
 	function showClass(code: string) {
 		classFilter = code;
+		recapCode = code;
 		void loadSessions();
 	}
 
 	function clearFilter() {
 		classFilter = '';
+		recapCode = '';
 		void loadSessions();
 	}
 
@@ -133,6 +139,12 @@
 {:else}
 	<div class="flex max-w-2xl flex-col gap-4">
 		<ClassCodes onpick={showClass} />
+
+		{#if recapCode}
+			{#key recapCode}
+				<ClassRecap code={recapCode} />
+			{/key}
+		{/if}
 
 		<h2 class="pt-2 text-xl font-semibold">Latihan siswa</h2>
 		<Field.Field>
