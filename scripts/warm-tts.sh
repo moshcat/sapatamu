@@ -20,7 +20,7 @@ if [ "$status" != 200 ]; then
 fi
 
 while true; do
-	status="$(curl -sS -o "$body" -w '%{http_code}' -b "$jar" -X POST "$base/api/teacher/tts-warm")"
+	status="$(curl -sS -o "$body" -w '%{http_code}' -b "$jar" -H 'Content-Type: application/json' --data '{}' "$base/api/teacher/tts-warm")"
 	result="$(cat "$body")"
 	if [ "$status" != 200 ]; then
 		echo "Pengisian suara gagal (HTTP $status): $result" >&2
