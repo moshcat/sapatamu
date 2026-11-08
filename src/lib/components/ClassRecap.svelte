@@ -30,7 +30,7 @@
 </script>
 
 <section aria-labelledby="recap-title" class="flex flex-col gap-3">
-	<h2 id="recap-title" class="pt-2 text-xl font-semibold">Rekap kelas {code}</h2>
+	<h3 id="recap-title" class="text-lg font-semibold">Rekap kelas {code}</h3>
 
 	{#if failure}
 		<Alert.Root variant="destructive">
@@ -76,7 +76,7 @@
 				<Separator />
 
 				<div class="flex flex-col gap-2 text-sm">
-					<h3 class="font-medium">Siswa yang perlu dibantu</h3>
+					<h4 class="font-medium">Siswa yang perlu dibantu</h4>
 					{#if recap.needsHelp.length}
 						<ul class="flex flex-col gap-1">
 							{#each recap.needsHelp as student (student.nickname)}

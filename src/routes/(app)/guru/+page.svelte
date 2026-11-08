@@ -24,7 +24,7 @@
 
 	let sessions = $state.raw<SessionSummary[]>([]);
 	let classFilter = $state('');
-	// Rekap hanya untuk kelas yang dipilih dari daftar, bukan saringan bebas.
+	// Rekap dibuka lewat tombol, karena saringan bebas bisa berisi potongan kode.
 	let recapCode = $state('');
 	let listing = $state(false);
 	let failure = $state('');
@@ -140,24 +140,29 @@
 	<div class="flex max-w-2xl flex-col gap-4">
 		<ClassCodes onpick={showClass} />
 
+		<h2 class="pt-2 text-xl font-semibold">Latihan siswa</h2>
+		<Field.Field>
+			<Field.FieldLabel for="class-filter">Saring kode kelas</Field.FieldLabel>
+			<div class="flex gap-2">
+				<Input
+					id="class-filter"
+					class="h-11 min-w-0 flex-1"
+					autocomplete="off"
+					maxlength={20}
+					bind:value={classFilter}
+					oninput={filterChanged}
+				/>
+				<Button variant="outline" class="h-11" disabled={!classFilter.trim()} onclick={() => (recapCode = classFilter.trim().toUpperCase())}>
+					Lihat rekap
+				</Button>
+			</div>
+		</Field.Field>
+
 		{#if recapCode}
 			{#key recapCode}
 				<ClassRecap code={recapCode} />
 			{/key}
 		{/if}
-
-		<h2 class="pt-2 text-xl font-semibold">Latihan siswa</h2>
-		<Field.Field>
-			<Field.FieldLabel for="class-filter">Saring kode kelas</Field.FieldLabel>
-			<Input
-				id="class-filter"
-				class="h-11"
-				autocomplete="off"
-				maxlength={20}
-				bind:value={classFilter}
-				oninput={filterChanged}
-			/>
-		</Field.Field>
 
 		{#if failure}
 			<Alert.Root variant="destructive">
