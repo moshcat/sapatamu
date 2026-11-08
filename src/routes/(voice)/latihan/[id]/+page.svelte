@@ -46,6 +46,12 @@
 		void goto(target);
 	}
 
+	function sendOnEnter(event: KeyboardEvent & { currentTarget: HTMLTextAreaElement }) {
+		if (event.key !== 'Enter' || event.shiftKey || event.isComposing) return;
+		event.preventDefault();
+		event.currentTarget.form?.requestSubmit();
+	}
+
 	function submitTyped(event: SubmitEvent) {
 		event.preventDefault();
 		const text = typed.trim();
@@ -188,6 +194,7 @@
 					aria-describedby="typed-help"
 					disabled={!voice.canType}
 					bind:value={typed}
+					onkeydown={sendOnEnter}
 				/>
 				{#if typedMissing}
 					<Field.FieldError id="typed-help">Tulis jawabanmu dulu sebelum mengirim.</Field.FieldError>
@@ -200,7 +207,9 @@
 								: 'Tunggu tamu selesai berpikir.'}
 					</Field.FieldDescription>
 				{:else}
-					<Field.FieldDescription id="typed-help">Mikrofon dijeda selama lembar ini terbuka.</Field.FieldDescription>
+					<Field.FieldDescription id="typed-help">
+						Enter untuk kirim, Shift+Enter untuk baris baru. Mikrofon dijeda selama lembar ini terbuka.
+					</Field.FieldDescription>
 				{/if}
 			</Field.Field>
 			<Button type="submit" variant="outline" class="h-11 w-full" disabled={!voice.canType}>Kirim jawaban</Button>
