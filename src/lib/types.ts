@@ -68,7 +68,7 @@ export interface ClassRecap {
 	students: number;
 	reviewed: number;
 	criteria: Array<{ criterion: Criterion; average: number | null }>;
-	weakest: Criterion | null;
+	weakest: Criterion[];
 	needsHelp: Array<{ nickname: string; sessions: number; average: number }>;
 	targetRate: number | null;
 }

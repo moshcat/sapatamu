@@ -23,7 +23,7 @@ describe('summarizeClass', () => {
 	it('mengembalikan rekap kosong untuk kelas tanpa latihan', () => {
 		const recap = summarizeClass([]);
 		expect(recap.sessions).toBe(0);
-		expect(recap.weakest).toBeNull();
+		expect(recap.weakest).toEqual([]);
 		expect(recap.targetRate).toBeNull();
 		expect(recap.criteria.every((item) => item.average === null)).toBe(true);
 	});
@@ -43,8 +43,13 @@ describe('summarizeClass', () => {
 		]);
 		expect(recap.students).toBe(2);
 		expect(recap.criteria.map((item) => item.average)).toEqual([3, 3.7, 1.7, 2.7]);
-		expect(recap.weakest).toBe('Penyelesaian masalah');
+		expect(recap.weakest).toEqual(['Penyelesaian masalah']);
 		expect(recap.targetRate).toBe(78);
+	});
+
+	it('menyebut semua kriteria terlemah bila nilainya seri', () => {
+		const recap = summarizeClass([row('Ayu', [3, 2, 2, 2]), row('Made', [3, 3, 3, 3])]);
+		expect(recap.weakest).toEqual(['Kesopanan', 'Penyelesaian masalah', 'Kelengkapan layanan']);
 	});
 
 	it('mengurutkan siswa yang perlu dibantu dari rata-rata terendah', () => {

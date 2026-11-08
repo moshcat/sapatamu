@@ -47,7 +47,8 @@ export function summarizeClass(rows: RecapRow[]): ClassRecap {
 
 	const averages = criteria.map((criterion) => ({ criterion, average: round(mean(byCriterion.get(criterion) ?? [])) }));
 	const scored = averages.filter((item): item is { criterion: Criterion; average: number } => item.average !== null);
-	const weakest = scored.length ? scored.reduce((low, item) => (item.average < low.average ? item : low)).criterion : null;
+	const lowest = Math.min(...scored.map((item) => item.average));
+	const weakest = scored.filter((item) => item.average === lowest).map((item) => item.criterion);
 	const needsHelp = [...byStudent.values()]
 		.map((student) => ({ nickname: student.nickname, sessions: student.sessions, average: round(mean(student.scores)) ?? 0 }))
 		.filter((student) => student.average < HELP_BELOW)
