@@ -16,6 +16,12 @@
 			"migrations_dir": "./migrations"
 		}
 	],
+	"kv_namespaces": [
+		{
+			"binding": "TTS_CACHE",
+			"id": "b0dd25aec80e4ebf8ea6a0ef195cb417"
+		}
+	],
 	"placement": {
 		"mode": "targeted",
 		"region": "gcp:asia-southeast1"
