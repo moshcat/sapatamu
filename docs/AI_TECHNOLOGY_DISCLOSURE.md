@@ -6,7 +6,7 @@
 | Nama Tim | SapaTamu (Anak Agung Gede Bagus Abi Wiguna, Primakara University) |
 | Framework / Frontend | SvelteKit, Svelte 5, TypeScript, shadcn-svelte, Tailwind CSS |
 | Backend / Runtime | SvelteKit server routes pada Cloudflare Workers |
-| Database / Storage | Cloudflare D1 |
+| Database / Storage | Cloudflare D1, Cloudflare Workers KV untuk cache audio suara tamu |
 | Hosting / Deployment | Cloudflare Workers |
 | AI Model / API / Method | Gemini Flash-Lite, model Gemini TTS (3.8 Flash, 3.8 Flash-Lite, 3.1 Flash preview, 2.5 Flash preview), Groq Whisper Large v3 Turbo, GPT-OSS 120B lewat Groq sebagai cadangan teks, Deepgram Aura 2 lewat Cloudflare Workers AI sebagai cadangan suara |
 | Peran AI dalam Produk | Menjadi tamu simulasi, menentukan emosi tamu, memeriksa target percakapan, mengubah suara pengguna menjadi teks, mengucapkan balasan tamu, dan menyusun skor latihan beserta contoh perbaikan |

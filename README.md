@@ -17,8 +17,9 @@ Pengguna utama adalah siswa dan guru SMK pariwisata di Bali. Pengguna tambahan a
 - Guru membuat kode kelas sendiri, membagikannya ke siswa, lalu meninjau latihan per kelas.
 - Percakapan suara dengan karakter Kamboja, disertai emosi tamu.
 - Kolom ketik sebagai cadangan.
-- Folio skor latihan berdasarkan empat kriteria.
+- Folio skor latihan berdasarkan empat kriteria, bisa dicetak atau disimpan sebagai PDF.
 - Halaman guru untuk meninjau transkrip dan mengoreksi skor.
+- Rekap kelas: rata-rata tiap kriteria, kriteria yang paling perlu dilatih, ketercapaian target, dan siswa dengan rata-rata di bawah 3.
 
 ## Screenshots
 
@@ -35,13 +36,14 @@ Pengguna utama adalah siswa dan guru SMK pariwisata di Bali. Pengguna tambahan a
 - Frontend dan backend: SvelteKit, Svelte 5, TypeScript.
 - UI: shadcn-svelte, Tailwind CSS.
 - Database: Cloudflare D1.
+- Cache audio suara tamu: Cloudflare Workers KV.
 - Hosting: Cloudflare Workers.
 
 ## AI Implementation
 
 - Gemini Flash-Lite menjadi tamu simulasi, menentukan emosi tamu, memeriksa target percakapan, dan menyusun folio.
 - Groq Whisper mengubah rekaman jawaban menjadi teks.
-- Gemini TTS mengucapkan balasan tamu sesuai emosinya. Aura 2 di Workers AI menjadi cadangan, lalu suara browser.
+- Gemini TTS mengucapkan balasan tamu sesuai emosinya. Audio yang sudah jadi disimpan di KV dan dipakai ulang untuk kalimat, suara, dan emosi yang sama. Aura 2 di Workers AI menjadi cadangan, lalu suara browser.
 - GPT-OSS 120B lewat Groq menjadi cadangan saat Gemini gagal.
 - Skor AI adalah bantuan latihan, bukan nilai resmi. Pelafalan belum dinilai.
 
@@ -52,7 +54,7 @@ Pengguna -> Browser SvelteKit -> API SvelteKit -> Groq Whisper -> teks jawaban
                                       |
                                       +-> Gemini atau Groq GPT-OSS -> balasan tamu dan emosi
                                       |
-                                      +-> Gemini TTS atau Aura 2 -> suara tamu
+                                      +-> KV cache atau Gemini TTS atau Aura 2 -> suara tamu
                                       |
                                       +-> D1 -> sesi, transkrip, folio, koreksi guru
 ```
@@ -70,6 +72,8 @@ pnpm dev
 
 Isi `.env` dengan `GROQ_API_KEY`, `GEMINI_API_KEY`, dan `TEACHER_PIN`. Mikrofon memerlukan `localhost` atau HTTPS.
 
+Untuk deploy di akun sendiri, buat namespace KV dengan `pnpm exec wrangler kv namespace create sapatamu-tts`, lalu ganti `id` binding `TTS_CACHE` di `wrangler.jsonc`.
+
 Deploy:
 
 ```bash
@@ -77,6 +81,8 @@ pnpm build
 pnpm exec wrangler d1 migrations apply sapatamu-db --remote
 pnpm exec wrangler deploy
 ```
+
+Setelah kuota Gemini TTS reset, isi suara pembuka semua skenario dengan `scripts/warm-tts.sh`. Skrip meminta PIN guru dan berhenti sendiri saat kuota habis.
 
 ## Deployment URL
 
@@ -88,7 +94,7 @@ Tanpa akun. Pengguna umum mendapat 3 sesi per hari per alamat IP. Kode akses jur
 
 ## Known Limitations
 
-- Layanan AI memakai tier gratis. Suara Gemini 3.8 hanya 10 permintaan per hari per model, lalu aplikasi turun ke model Gemini lain, Aura, dan suara browser.
+- Layanan AI memakai tier gratis. Suara Gemini 3.8 hanya 10 permintaan per hari per model, lalu aplikasi turun ke model Gemini lain, Aura, dan suara browser. Cache hanya membantu kalimat yang pernah diucapkan, terutama kalimat pembuka. Balasan tamu yang baru tetap memakai kuota.
 - Kode akses dan batas harian menahan penyalahgunaan ringan, bukan pengganti akun pengguna.
 - Semua guru memakai satu PIN yang sama, sehingga setiap guru melihat semua kelas.
 - Pelafalan belum dinilai.
