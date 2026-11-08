@@ -23,6 +23,10 @@
 
 	const report = $derived(session?.report ?? null);
 	const scenario = $derived(session ? findScenario(session.scenarioId) : undefined);
+	// Bila semua skor akhir sudah 4, kalimat contoh hanya alternatif, bukan koreksi.
+	const perfect = $derived(
+		report?.lines.every((line, index) => (session?.review?.scores[index] ?? line.score) === 4) ?? false
+	);
 
 	async function load() {
 		status = 'loading';
@@ -136,7 +140,7 @@
 			</section>
 			{#if report.better}
 				<Alert.Root role="note">
-					<Alert.Title>Coba katakan seperti ini</Alert.Title>
+					<Alert.Title>{perfect ? 'Variasi kalimat lain' : 'Coba katakan seperti ini'}</Alert.Title>
 					<Alert.Description>
 						<blockquote class="italic" lang="en">{report.better}</blockquote>
 					</Alert.Description>
