@@ -11,7 +11,7 @@
 	import { Spinner } from '$lib/components/ui/spinner';
 	import { CLASS_DAILY_SESSIONS, type ClassCode } from '$lib/types';
 
-	let { onpick }: { onpick: (code: string) => void } = $props();
+	let { onpick, onremove }: { onpick: (code: string) => void; onremove: (code: string) => void } = $props();
 
 	let classes = $state.raw<ClassCode[] | null>(null);
 	let loadError = $state('');
@@ -71,6 +71,7 @@
 			await request(`/api/teacher/classes/${code}`, { method: 'DELETE' });
 			classes = (classes ?? []).filter((item) => item.code !== code);
 			removing = null;
+			onremove(code);
 		} catch (cause) {
 			removeError = errorMessage(cause);
 		}

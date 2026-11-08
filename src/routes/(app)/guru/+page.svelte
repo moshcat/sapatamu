@@ -74,25 +74,59 @@
 		loggingIn = false;
 	}
 
+	// Saringan disimpan per tab supaya tidak hilang setelah guru membuka tinjauan lalu kembali.
+	const FILTER_KEY = 'sapatamu:guru-filter';
+
+	function saveFilter() {
+		try {
+			sessionStorage.setItem(FILTER_KEY, JSON.stringify({ filter: classFilter, recap: recapCode }));
+		} catch {
+			// Penyimpanan diblokir: saringan cukup hidup selama halaman terbuka.
+		}
+	}
+
+	function restoreFilter() {
+		try {
+			const saved = JSON.parse(sessionStorage.getItem(FILTER_KEY) ?? 'null');
+			if (typeof saved?.filter === 'string') classFilter = saved.filter;
+			if (typeof saved?.recap === 'string') recapCode = saved.recap;
+		} catch {
+			// Data rusak atau penyimpanan diblokir: mulai tanpa saringan.
+		}
+	}
+
 	function filterChanged() {
 		recapCode = '';
+		saveFilter();
 		clearTimeout(filterTimer);
 		filterTimer = setTimeout(loadSessions, 250);
+	}
+
+	function showRecap() {
+		recapCode = classFilter.trim().toUpperCase();
+		saveFilter();
 	}
 
 	function showClass(code: string) {
 		classFilter = code;
 		recapCode = code;
+		saveFilter();
 		void loadSessions();
 	}
 
 	function clearFilter() {
 		classFilter = '';
 		recapCode = '';
+		saveFilter();
 		void loadSessions();
 	}
 
+	function classRemoved(code: string) {
+		if (recapCode === code || classFilter.trim().toUpperCase() === code) clearFilter();
+	}
+
 	onMount(() => {
+		restoreFilter();
 		void loadSessions();
 		return () => clearTimeout(filterTimer);
 	});
@@ -138,7 +172,7 @@
 	</form>
 {:else}
 	<div class="flex max-w-2xl flex-col gap-4">
-		<ClassCodes onpick={showClass} />
+		<ClassCodes onpick={showClass} onremove={classRemoved} />
 
 		<h2 class="pt-2 text-xl font-semibold">Latihan siswa</h2>
 		<Field.Field>
@@ -152,7 +186,7 @@
 					bind:value={classFilter}
 					oninput={filterChanged}
 				/>
-				<Button variant="outline" class="h-11" disabled={!classFilter.trim()} onclick={() => (recapCode = classFilter.trim().toUpperCase())}>
+				<Button variant="outline" class="h-11" disabled={!classFilter.trim()} onclick={showRecap}>
 					Lihat rekap
 				</Button>
 			</div>
@@ -175,10 +209,10 @@
 		{:else if sessions.length === 0 && !listing}
 			<Empty.Root>
 				<Empty.Header>
-					<Empty.Title>{classFilter.trim() ? 'Tidak ada latihan untuk kode ini' : 'Belum ada latihan selesai'}</Empty.Title>
+					<Empty.Title>{classFilter.trim() ? 'Belum ada latihan untuk kode ini' : 'Belum ada latihan selesai'}</Empty.Title>
 					<Empty.Description>
 						{classFilter.trim()
-							? 'Periksa kode kelasnya atau hapus saringan.'
+							? 'Latihan muncul di sini setelah siswa menyelesaikannya dengan kode ini. Kalau kodenya salah ketik, hapus saringan.'
 							: 'Bagikan kode kelas ke siswa. Latihan yang selesai dengan kode itu muncul di sini.'}
 					</Empty.Description>
 				</Empty.Header>
