@@ -1,14 +1,14 @@
 import { error } from '@sveltejs/kit';
 import { findScenario } from '$lib/scenarios';
 import { requireActiveSession } from '$lib/server/db';
-import { DAY_MS, limitRequests } from '$lib/server/limits';
+import { DAY_MS, limitCaller, limitRequests } from '$lib/server/limits';
 import { auraSpeech, cachedSpeech, voiceFor } from '$lib/server/tts';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request, getClientAddress }) => {
-	await limitRequests(`tts:${getClientAddress()}`, 30);
 	const body = (await request.json()) as { sessionId?: string };
 	const session = await requireActiveSession(String(body.sessionId ?? ''));
+	await limitCaller('tts', session, getClientAddress(), 30);
 	const scenario = findScenario(session.scenarioId);
 	const turn = session.turns.findLast((item) => item.role === 'guest');
 	if (!scenario || !turn) error(404, 'Latihan tidak ditemukan.');

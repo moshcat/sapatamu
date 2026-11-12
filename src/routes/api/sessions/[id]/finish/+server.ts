@@ -1,16 +1,16 @@
 import { error, json } from '@sveltejs/kit';
 import { findScenario } from '$lib/scenarios';
 import { getSession, saveReport } from '$lib/server/db';
-import { limitRequests } from '$lib/server/limits';
+import { limitCaller } from '$lib/server/limits';
 import { AiUnavailableError, buildReport } from '$lib/server/llm';
 import { mergeChecks } from '$lib/server/validate';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ params, getClientAddress }) => {
-	await limitRequests(`finish:${getClientAddress()}`, 10);
 	const session = await getSession(params.id);
 	const scenario = session && findScenario(session.scenarioId);
 	if (!session || !scenario) error(404, 'Latihan tidak ditemukan.');
+	await limitCaller('finish', session, getClientAddress(), 10);
 	if (session.report) return json(session.report);
 	if (!session.turns.some((turn) => turn.role === 'student')) error(400, 'Belum ada jawaban untuk dinilai.');
 	try {

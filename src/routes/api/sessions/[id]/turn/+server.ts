@@ -1,15 +1,15 @@
 import { error, json } from '@sveltejs/kit';
 import { findScenario } from '$lib/scenarios';
 import { addTurn, requireActiveSession, updateChecks } from '$lib/server/db';
-import { DAY_MS, limitRequests, SESSION_CALLS } from '$lib/server/limits';
+import { DAY_MS, limitCaller, limitRequests, SESSION_CALLS } from '$lib/server/limits';
 import { AiUnavailableError, askGuest } from '$lib/server/llm';
 import { cleanText, mergeChecks } from '$lib/server/validate';
 import { MAX_ANSWERS, type Turn } from '$lib/types';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ params, request, getClientAddress }) => {
-	await limitRequests(`turn:${getClientAddress()}`, 20);
 	const session = await requireActiveSession(params.id);
+	await limitCaller('turn', session, getClientAddress(), 20);
 	const scenario = findScenario(session.scenarioId);
 	if (!scenario) error(404, 'Latihan tidak ditemukan.');
 	await limitRequests(`turn-session:${session.id}`, SESSION_CALLS, DAY_MS);
