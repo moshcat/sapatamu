@@ -67,15 +67,6 @@ export function readProfile(): Profile | null {
 
 export const saveProfile = (profile: Profile) => write(PROFILE_KEY, JSON.stringify(profile));
 
-export function clearProfile() {
-	memory.delete(PROFILE_KEY);
-	try {
-		localStorage.removeItem(PROFILE_KEY);
-	} catch {
-		return;
-	}
-}
-
 export const homePath = (profile: Profile) => (profile.role === 'Guru' ? '/guru' : '/latihan');
 
 export const doneScenarios = () => new Set(readList(DONE_KEY));

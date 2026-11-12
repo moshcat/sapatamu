@@ -8,7 +8,7 @@
 	import { request } from '$lib/api';
 	import favicon from '#lib/assets/favicon.svg';
 	import { Button } from '$lib/components/ui/button';
-	import { clearProfile, type Profile } from '$lib/profile';
+	import type { Profile } from '$lib/profile';
 
 	let { profile }: { profile: Profile | null } = $props();
 
@@ -28,8 +28,7 @@
 	async function changeRole() {
 		// Body JSON mencegah DELETE tanpa content-type dihitung sebagai form lintas situs oleh cek CSRF SvelteKit.
 		if (teacher) await request('/api/teacher/login', { method: 'DELETE', json: {} }).catch(() => undefined);
-		clearProfile();
-		await goto('/');
+		await goto('/?ganti=1');
 	}
 </script>
 

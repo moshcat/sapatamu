@@ -10,7 +10,7 @@
 	import * as RadioGroup from '$lib/components/ui/radio-group';
 	import { Spinner } from '$lib/components/ui/spinner';
 	import { errorMessage, request } from '$lib/api';
-	import { homePath, saveProfile, type Profile } from '$lib/profile';
+	import { homePath, readProfile, saveProfile, type Profile } from '$lib/profile';
 	import type { Level, Role } from '$lib/types';
 
 	const roleOptions: { role: Role | 'Guru'; hint: string }[] = [
@@ -26,11 +26,15 @@
 		{ level: 'Mahir', hint: 'Tamu lebih menuntut, tanpa kalimat bantu.' }
 	];
 
+	// Profil lama mengisi formulir saat siswa membuka Ganti peran, dan tetap berlaku sampai profil baru disimpan.
+	const previous = readProfile();
+	const learner = previous?.role === 'Guru' ? null : previous;
+
 	let step = $state(1);
-	let role = $state<Role>('Siswa SMK');
-	let nickname = $state('');
-	let classCode = $state('');
-	let level = $state<string>('Dasar');
+	let role = $state<Role>(learner?.role ?? 'Siswa SMK');
+	let nickname = $state(learner?.nickname ?? '');
+	let classCode = $state(learner?.classCode ?? '');
+	let level = $state<string>(learner?.level ?? 'Dasar');
 	let nicknameMissing = $state(false);
 	let codeError = $state('');
 	let checkingCode = $state(false);
@@ -49,8 +53,8 @@
 			enter({ role: 'Guru' });
 			return;
 		}
+		if (choice !== learner?.role) level = choice === 'Siswa SMK' ? 'Dasar' : 'Menengah';
 		role = choice;
-		level = choice === 'Siswa SMK' ? 'Dasar' : 'Menengah';
 		step = 2;
 	}
 
@@ -102,6 +106,11 @@
 	class="mx-auto flex min-h-dvh w-full max-w-lg flex-col gap-5 px-4 pt-[max(1.25rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]"
 >
 	{#if step === 1}
+		{#if previous}
+			<div>
+				<Button variant="ghost" class="-ml-2 h-11" href={homePath(previous)}>Batal</Button>
+			</div>
+		{/if}
 		<header class="flex flex-col gap-3">
 			<div class="flex items-center gap-3">
 				<Kamboja emotion="senang" class="w-16" />
