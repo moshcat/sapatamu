@@ -3,7 +3,7 @@
 # Pemakaian: scripts/warm-tts.sh [URL aplikasi]
 set -euo pipefail
 
-base="${1:-https://sapatamu.mauricecathoverile.workers.dev}"
+base="${1:-https://sapatamu.web.id}"
 jar="$(mktemp)"
 
 read -rsp 'PIN guru: ' pin

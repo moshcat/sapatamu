@@ -86,7 +86,9 @@ Setelah kuota Gemini TTS reset, isi suara pembuka semua skenario dengan `scripts
 
 ## Deployment URL
 
-https://sapatamu.mauricecathoverile.workers.dev
+https://sapatamu.web.id
+
+Alamat cadangan: https://sapatamu.mauricecathoverile.workers.dev. Beberapa provider di Indonesia, misalnya XL, memblokir domain `workers.dev`, jadi gunakan alamat utama di atas.
 
 ## Demo Account
 
