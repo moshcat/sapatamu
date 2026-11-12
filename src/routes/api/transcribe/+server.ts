@@ -1,10 +1,18 @@
 import { error, json } from '@sveltejs/kit';
 import { requireActiveSession } from '$lib/server/db';
+import { findScenario } from '$lib/scenarios';
 import { DAY_MS, limitCaller, limitRequests, SESSION_CALLS } from '$lib/server/limits';
 import { transcribe, TranscriptionError } from '$lib/server/stt';
 import type { RequestHandler } from './$types';
 
 const MAX_REQUEST_BYTES = 1024 * 1024;
+
+function sttPrompt(session: { scenarioId: string; turns: { role: string; text: string }[] }) {
+	const scenario = findScenario(session.scenarioId);
+	if (!scenario) return '';
+	const lastGuest = session.turns.findLast((turn) => turn.role === 'guest')?.text ?? '';
+	return `${scenario.guestPersona} ${lastGuest} ${scenario.helper}`.slice(0, 600);
+}
 
 export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 	const size = Number(request.headers.get('content-length'));
@@ -16,7 +24,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 	const audio = form.get('audio');
 	if (!(audio instanceof File) || audio.size === 0) error(400, 'Rekaman tidak ditemukan.');
 	try {
-		return json({ text: await transcribe(audio) });
+		return json({ text: await transcribe(audio, sttPrompt(session)) });
 	} catch (cause) {
 		if (cause instanceof TranscriptionError) error(503, 'Suara belum bisa diubah menjadi teks. Ketik jawabanmu atau coba lagi.');
 		throw cause;
