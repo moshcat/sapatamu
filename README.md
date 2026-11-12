@@ -16,6 +16,7 @@ Pengguna utama adalah siswa dan guru SMK pariwisata di Bali. Pengguna tambahan a
 - Empat puluh skenario: 20 untuk resepsionis hotel dan 20 untuk pramusaji restoran.
 - Guru membuat kode kelas sendiri, membagikannya ke siswa, lalu meninjau latihan per kelas.
 - Percakapan suara dengan karakter Kamboja, disertai emosi tamu.
+- Tombol Petunjuk berisi target berikutnya, info situasi, dan contoh kalimat (contoh kalimat disembunyikan di level Mahir).
 - Kolom ketik sebagai cadangan.
 - Folio skor latihan berdasarkan empat kriteria, bisa dicetak atau disimpan sebagai PDF.
 - Halaman guru untuk meninjau transkrip dan mengoreksi skor.
@@ -42,9 +43,10 @@ Pengguna utama adalah siswa dan guru SMK pariwisata di Bali. Pengguna tambahan a
 ## AI Implementation
 
 - Gemini Flash-Lite menjadi tamu simulasi, menentukan emosi tamu, memeriksa target percakapan, dan menyusun folio.
-- Groq Whisper mengubah rekaman jawaban menjadi teks.
+- Groq Whisper mengubah rekaman jawaban menjadi teks. Kosakata situasi (persona tamu, kalimat tamu terakhir, contoh kalimat) dikirim sebagai prompt agar nama tempat dan istilah lebih mudah dikenali.
 - Gemini TTS mengucapkan balasan tamu sesuai emosinya. Audio yang sudah jadi disimpan di KV dan dipakai ulang untuk kalimat, suara, dan emosi yang sama. Aura 2 di Workers AI menjadi cadangan, lalu suara browser.
 - GPT-OSS 120B lewat Groq menjadi cadangan saat Gemini gagal.
+- Selama suara tamu disiapkan, karakter tampil berpikir. Teks dan emosi tamu baru muncul saat suaranya mulai diputar.
 - Skor AI adalah bantuan latihan, bukan nilai resmi. Pelafalan belum dinilai.
 
 ## Architecture / Data Flow
@@ -101,7 +103,12 @@ Tanpa akun. Pengguna umum mendapat 3 sesi per hari per alamat IP. Kode akses jur
 - Semua guru memakai satu PIN yang sama, sehingga setiap guru melihat semua kelas.
 - Pelafalan belum dinilai.
 - Skor AI belum tervalidasi oleh guru.
+- Uji coba awal baru melibatkan 4 orang (3 siswa perhotelan SMKN 2 Denpasar dan 1 lulusan SMK). Hasilnya dipakai untuk perbaikan, bukan bukti efektivitas. Rinciannya ada di [Catatan Improvement](docs/IMPROVEMENT_NOTES.md).
 - Paper Astawa dkk. terbit 2017, sehingga kondisi tes saat ini perlu dikonfirmasi.
+
+## Improvement Tahap 1 ke Tahap 2
+
+Lihat [Catatan Improvement](docs/IMPROVEMENT_NOTES.md). Versi Tahap 1 ada di tag `v1.0-submission`, versi final di tag `v2.0-final`.
 
 ## Third-party Resources / Credits
 
