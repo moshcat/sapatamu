@@ -46,7 +46,8 @@ export const moodLabels: Record<Emotion, string> = {
 	bingung: 'Tamu terlihat bingung'
 };
 
-const SILENCE_MS = 1200;
+// Cukup panjang untuk jeda berpikir di tengah kalimat, supaya jawaban tidak terpotong.
+const SILENCE_MS = 1700;
 const MIN_VOICE_MS = 150;
 const MAX_RECORDING_MS = 30_000;
 const TICK_MS = 50;
@@ -110,10 +111,15 @@ export class VoiceSession {
 	voiceNote = $state('');
 	loadError = $state<{ message: string; missing: boolean } | null>(null);
 	levels = $state.raw<number[]>(QUIET);
+	// Balasan baru ditahan dari layar sampai suaranya mulai, supaya teks dan suara muncul bersamaan.
+	voicePending = $state(false);
 
 	scenario = $derived(this.session ? (findScenario(this.session.scenarioId) ?? null) : null);
 	guestLine = $derived(this.turns.findLast((turn) => turn.role === 'guest')?.text ?? '');
 	emotion = $derived<Emotion>(this.turns.findLast((turn) => turn.role === 'guest')?.emotion ?? 'netral');
+	shownTurns = $derived(this.voicePending ? this.turns.slice(0, -1) : this.turns);
+	caption = $derived(this.voicePending ? '' : this.guestLine);
+	shownEmotion = $derived<Emotion>(this.shownTurns.findLast((turn) => turn.role === 'guest')?.emotion ?? 'netral');
 	lastAnswer = $derived(this.turns.findLast((turn) => turn.role === 'student')?.text ?? '');
 	answered = $derived(this.turns.some((turn) => turn.role === 'student'));
 	progress = $derived(this.scenario ? (this.checksMet.length / this.scenario.checks.length) * 100 : 0);
@@ -161,6 +167,7 @@ export class VoiceSession {
 			} else if (session.turns.filter((turn) => turn.role === 'student').length >= MAX_ANSWERS) {
 				this.phase = 'done';
 			} else {
+				this.voicePending = true;
 				this.#speak(this.guestLine, 'listen');
 			}
 		} catch (cause) {
@@ -248,7 +255,9 @@ export class VoiceSession {
 
 	#speak(text: string, after: AfterSpeech) {
 		const run = this.#nextRun();
-		this.phase = 'speaking';
+		// Selama suara dimuat, tamu terlihat berpikir. Pembuka tetap memakai fase loading.
+		if (!this.voicePending) this.phase = 'speaking';
+		else if (this.phase !== 'loading') this.phase = 'thinking';
 		const next = () => {
 			if (run !== this.#run) return;
 			clearTimeout(this.#timer);
@@ -296,17 +305,25 @@ export class VoiceSession {
 		source.connect(context.destination);
 		source.onended = next;
 		this.#source = source;
+		this.#reveal();
 		source.start();
 		this.#timer = setTimeout(next, (voice.duration + 2) * 1000);
 	}
 
+	#reveal() {
+		this.voicePending = false;
+		this.phase = 'speaking';
+	}
+
 	#waitForTap(after: AfterSpeech) {
+		this.voicePending = false;
 		this.#blockedAfter = after;
 		this.notice = { message: 'Browser menahan suara otomatis. Tekan tombol ini untuk mendengar tamu.', offerListen: true };
 		this.phase = after === 'done' ? 'done' : 'paused';
 	}
 
 	#speakWithBrowser(text: string, next: () => void) {
+		this.#reveal();
 		if (!globalThis.speechSynthesis || typeof SpeechSynthesisUtterance === 'undefined') {
 			this.#timer = setTimeout(next, Math.max(1400, text.length * 50));
 			return;
@@ -489,6 +506,8 @@ export class VoiceSession {
 		try {
 			const result = await request<TurnResponse>(`/api/sessions/${this.#id}/turn`, { method: 'POST', json: { text } });
 			if (run !== this.#run) return;
+			this.voicePending = true;
+			this.voiceNote = '';
 			this.turns = [...this.turns, { role: 'guest', text: result.reply, emotion: result.emotion }];
 			this.checksMet = result.checksMet;
 			this.#speak(result.reply, result.done ? 'done' : 'listen');

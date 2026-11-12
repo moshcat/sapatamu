@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
+	import HintCard from '$lib/components/HintCard.svelte';
 	import Kamboja from '$lib/components/Kamboja.svelte';
 	import TargetList from '$lib/components/TargetList.svelte';
 	import Transcript from '$lib/components/Transcript.svelte';
@@ -21,10 +22,12 @@
 	const voice = new VoiceSession(id, () => void goto(folioPath, { replaceState: true }));
 
 	let optionsOpen = $state(false);
+	let hintOpen = $state(false);
 	let typed = $state('');
 	let typedMissing = $state(false);
 
 	const nickname = $derived(voice.session?.nickname ?? 'Kamu');
+	const showHint = $derived(hintOpen && voice.phase !== 'done');
 	const busy = $derived(voice.phase === 'thinking' || voice.phase === 'loading');
 	const micLabel = $derived(
 		voice.phase === 'speaking' ? 'Potong tamu' : voice.phase === 'listening' ? 'Jeda mikrofon' : 'Bicara sekarang'
@@ -107,20 +110,23 @@
 				>
 					<Kamboja
 						phase={voice.phase}
-						emotion={voice.emotion}
+						emotion={voice.shownEmotion}
 						disabled={!voice.canRepeat}
 						onrepeat={() => voice.repeat()}
 						class="w-[min(clamp(10.5rem,50vw,15rem),32dvh)]"
 					/>
 					<VoiceLevel phase={voice.phase} levels={voice.levels} />
 					<p class="font-semibold" role="status">{phaseLabels[voice.phase]}</p>
-					<p class="text-muted-foreground text-sm">{moodLabels[voice.emotion]}</p>
-					<p class="max-w-[30ch] text-xl font-medium wrap-anywhere text-balance" lang="en">{voice.guestLine}</p>
+					<p class="text-muted-foreground text-sm">{moodLabels[voice.shownEmotion]}</p>
+					<p class="max-w-[30ch] text-xl font-medium wrap-anywhere text-balance" lang="en">{voice.caption}</p>
 					{#if voice.voiceNote}
 						<p class="text-muted-foreground text-sm">{voice.voiceNote}</p>
 					{/if}
 					{#if voice.lastAnswer}
 						<p class="text-muted-foreground max-w-[44ch] text-sm wrap-anywhere" lang="en">{voice.lastAnswer}</p>
+					{/if}
+					{#if showHint && voice.scenario && voice.session}
+						<HintCard id="hint" class="desk:hidden" scenario={voice.scenario} met={voice.checksMet} level={voice.session.level} />
 					{/if}
 					{#if voice.notice}
 						<Alert.Root variant={voice.phase === 'done' || voice.notice.offerListen ? 'default' : 'destructive'} class="max-w-md">
@@ -135,7 +141,7 @@
 					{/if}
 				</section>
 
-				<div class="mx-auto grid w-full max-w-115 grid-cols-[minmax(0,1fr)_auto] gap-2.5">
+				<div class="mx-auto grid w-full max-w-115 grid-flow-col grid-cols-[minmax(0,1fr)] gap-2.5">
 					{#if voice.phase === 'done'}
 						<Button class="h-11" href={folioPath}>Lihat hasil</Button>
 					{:else if voice.phase === 'error'}
@@ -148,18 +154,32 @@
 							{micLabel}
 						</Button>
 					{/if}
+					{#if voice.phase !== 'done'}
+						<Button
+							variant="outline"
+							class="h-11 px-4"
+							aria-expanded={hintOpen}
+							aria-controls={hintOpen ? 'hint hint-side' : undefined}
+							onclick={() => (hintOpen = !hintOpen)}
+						>
+							Petunjuk
+						</Button>
+					{/if}
 					<Button variant="outline" class="h-11 px-4" onclick={() => setOptions(true)}>Opsi</Button>
 				</div>
 			</div>
 
 			<aside aria-label="Target dan riwayat" class="desk:flex hidden min-h-0 flex-col gap-5 overflow-y-auto border-l pl-8">
+				{#if showHint && voice.scenario && voice.session}
+					<HintCard id="hint-side" scenario={voice.scenario} met={voice.checksMet} level={voice.session.level} />
+				{/if}
 				<section class="flex flex-col gap-2">
 					<h2 class="text-sm font-medium">Target latihan</h2>
 					<TargetList checks={voice.scenario?.checks ?? []} met={voice.checksMet} />
 				</section>
 				<section class="flex flex-col gap-2">
 					<h2 class="text-sm font-medium">Riwayat percakapan</h2>
-					<Transcript turns={voice.turns} {nickname} follow />
+					<Transcript turns={voice.shownTurns} {nickname} follow />
 				</section>
 			</aside>
 		</div>
@@ -221,7 +241,7 @@
 		</section>
 		<section class="desk:hidden flex flex-col gap-2 border-t pt-3">
 			<h2 class="text-sm font-medium">Riwayat percakapan</h2>
-			<Transcript turns={voice.turns} {nickname} />
+			<Transcript turns={voice.shownTurns} {nickname} />
 		</section>
 	</Sheet.Content>
 </Sheet.Root>

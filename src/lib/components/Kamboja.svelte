@@ -89,6 +89,11 @@
 			<g class="anger" fill="none" stroke="#C61F2E" stroke-width="7" stroke-linecap="round">
 				<path d="M192 34l10-16M206 44l16-10M210 62l18 2" />
 			</g>
+			<g class="thought" fill="#1D5C4F">
+				<circle class="dot dot-1" cx="178" cy="54" r="5" />
+				<circle class="dot dot-2" cx="194" cy="38" r="7" />
+				<circle class="dot dot-3" cx="214" cy="20" r="9" />
+			</g>
 			<text class="puzzled" x="190" y="50" font-weight="700" font-size="46" fill="#1D5C4F">?</text>
 		</g>
 	</svg>
@@ -179,6 +184,9 @@
 	[data-phase='thinking'] .arm-left {
 		transform: rotate(-150deg);
 	}
+	.thought {
+		display: none;
+	}
 	[data-phase='done'] .arm-left {
 		transform: rotate(48deg);
 	}
@@ -243,6 +251,14 @@
 	[data-mood='bingung'] .brow-right {
 		transform: translateY(8px) rotate(6deg);
 	}
+	/* Saat berpikir, titik pikiran menggantikan tanda emosi di atas kepala supaya tidak bertumpuk. */
+	[data-phase='thinking'] .thought {
+		display: inline;
+	}
+	[data-phase='thinking'] .puzzled,
+	[data-phase='thinking'] .anger {
+		display: none;
+	}
 	[data-mood='marah'] .petal-fill {
 		fill: #b3122a;
 	}
@@ -284,6 +300,47 @@
 		}
 		[data-mood='sedih'] .tears {
 			animation: tear 1.2s ease-in infinite;
+		}
+		/* Gerak pelan selama menunggu suara, supaya jeda terasa seperti tamu sedang berpikir. */
+		[data-phase='thinking'] .kamboja {
+			animation: sway 1.6s ease-in-out infinite alternate;
+		}
+		[data-phase='thinking'] .pupil {
+			animation: ponder 2.4s ease-in-out infinite alternate;
+		}
+		[data-phase='thinking'] .dot {
+			animation: think 1.2s ease-in-out infinite;
+		}
+		[data-phase='thinking'] .dot-2 {
+			animation-delay: 0.2s;
+		}
+		[data-phase='thinking'] .dot-3 {
+			animation-delay: 0.4s;
+		}
+	}
+	@keyframes sway {
+		from {
+			transform: rotate(-2deg);
+		}
+		to {
+			transform: rotate(2deg);
+		}
+	}
+	@keyframes ponder {
+		from {
+			transform: translate(6px, -4px);
+		}
+		to {
+			transform: translate(-6px, -4px);
+		}
+	}
+	@keyframes think {
+		0%,
+		100% {
+			opacity: 0.25;
+		}
+		50% {
+			opacity: 1;
 		}
 	}
 	@keyframes talk {
